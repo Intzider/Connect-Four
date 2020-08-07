@@ -14,13 +14,15 @@ def main():
     current_player = players[active_player_index]
 
     # loop until there is a winner or the board is full
-    while not check_for_winner(board, active_player_index - 1) or not is_board_full(board):
+    while not check_for_winner(board, active_player_index - 1):
         current_player = players[active_player_index]
         current_player_mark = marks[active_player_index]
 
         announce_player(current_player)
         show_board(board)
         choose_location(board, current_player_mark)
+        if is_board_full(board):
+            break
 
         active_player_index = (active_player_index + 1) % len(players)
 
@@ -84,8 +86,8 @@ def check_winning_states(rows_to_be_checked, active_player_index):
 
 def is_board_full(board):
     """Check if board is full, used to check if there is a tie"""
-    if None not in board:
-        return True
+    if any(None in row for row in board):
+        return False
 
 
 def announce_player(player):
@@ -95,7 +97,7 @@ def announce_player(player):
 
 def show_board(board):
     """Draw current state of the board"""
-    flipped_board = zip(*board)
+    flipped_board = np.transpose(board)
     for row in flipped_board:
         for cell in row:
             cell = cell if cell is not None else "_"
@@ -104,10 +106,10 @@ def show_board(board):
 
 
 def choose_location(board, mark):
-    """Let current player choose spot on board"""
+    """Let current player choose spot in array"""
     while True:
         try:
-            column = int(input(f"Choose spot to put {mark} (1-7): "))
+            column = int(input(f"Choose spot to drop {mark} (1-7): "))
             if column in range(1, 8):
                 if check_location(board, column - 1, mark):
                     break
