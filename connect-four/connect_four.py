@@ -2,6 +2,7 @@ import random
 from termcolor import colored
 import numpy as np
 
+# red starts first?
 marks = [colored("O", 'red'), colored("O", 'blue')]
 
 
@@ -9,7 +10,6 @@ def main():
     # initialize all relevant parameters
     board = init_board()
     players = init_players()
-    # red starts first?
     active_player_index = 0
     current_player = players[active_player_index]
 
@@ -27,8 +27,8 @@ def main():
     game_over_print(board, current_player, active_player_index - 1)
 
 
-# set board to zero | transposed for easier checking later
 def init_board():
+    """Set board to zero | transposed for easier checking later"""
     return [
         [None, None, None, None, None, None],
         [None, None, None, None, None, None],
@@ -40,8 +40,8 @@ def init_board():
     ]
 
 
-# enter player names and randomly select starting player
 def init_players():
+    """Enter player names and randomly select starting player"""
     players = [input("Enter player name: "), input("Enter player name: ")]
     player_1 = random.choice(players)
     player_2 = players[players.index(player_1) - 1]
@@ -49,8 +49,8 @@ def init_players():
     return [player_1, player_2]
 
 
-# check after any round if there is a winner
 def check_for_winner(board, active_player_index):
+    """Check after any round if there is a winner"""
     # check for winner by columns (because it's transposed)
     if check_winning_states(board, active_player_index):
         return True
@@ -70,12 +70,10 @@ def check_for_winner(board, active_player_index):
         return True
 
 
-# helper function for checking if there is a winner
 def check_winning_states(rows_to_be_checked, active_player_index):
+    """Helper function for checking if there is a winner"""
     global marks
-    current_player_win_check = []
-    for i in range(4):
-        current_player_win_check.append(marks[active_player_index])
+    current_player_win_check = [marks[active_player_index]] * 4
 
     for row in rows_to_be_checked:
         if marks[active_player_index] in row:
@@ -84,19 +82,19 @@ def check_winning_states(rows_to_be_checked, active_player_index):
                     return True
 
 
-# check if board is full, used to check if there is a tie
 def is_board_full(board):
+    """Check if board is full, used to check if there is a tie"""
     if None not in board:
         return True
 
 
-# announce player whose turn it is
 def announce_player(player):
+    """Announce player whose turn it is"""
     print(f"{player}, choose a column")
 
 
-# draw current state of the board
 def show_board(board):
+    """Draw current state of the board"""
     flipped_board = zip(*board)
     for row in flipped_board:
         for cell in row:
@@ -105,8 +103,8 @@ def show_board(board):
         print()
 
 
-# let current player choose spot on board
 def choose_location(board, mark):
+    """Let current player choose spot on board"""
     while True:
         try:
             column = int(input(f"Choose spot to put {mark} (1-7): "))
@@ -119,8 +117,8 @@ def choose_location(board, mark):
     print()
 
 
-# helper function for drop location - checks if column is ful
 def check_location(board, column, mark):
+    """Helper function for drop location - checks if column is full"""
     while True:
         if None in board[column]:
             for row_index in reversed(range(0, 6)):
@@ -132,8 +130,8 @@ def check_location(board, column, mark):
             return False
 
 
-# print game result along with final board state
 def game_over_print(board, current_player, active_player_index):
+    """Print game result along with final board state"""
     print()
     if not check_for_winner(board, active_player_index):
         print("The game is a tie!")
