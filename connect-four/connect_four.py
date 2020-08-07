@@ -2,34 +2,34 @@ import random
 from termcolor import colored
 import numpy as np
 
-# red starts first?
-marks = [colored("O", 'red'), colored("O", 'blue')]
+marks = [colored("O", 'blue'), colored("O", 'red')]
+board = []
+players = []
 
 
 def main():
     # initialize all relevant parameters
-    board = init_board()
-    players = init_players()
-    active_player_index = 0
-    current_player = players[active_player_index]
+    set_players()
+    set_initial_board_state()
+    current_player_index = 1
 
     # loop until there is a winner or the board is full
-    while not (check_for_winner(board, active_player_index - 1) or is_board_full(board)):
-        current_player = players[active_player_index]
-        current_player_mark = marks[active_player_index]
+    while not (check_for_winner(current_player_index) or is_board_full()):
+        current_player_index = (current_player_index + 1) % len(players)
+        current_player = players[current_player_index]
+        current_player_mark = marks[current_player_index]
 
         announce_player(current_player)
-        show_board(board)
-        choose_location(board, current_player_mark)
+        show_board()
+        set_drop_location(current_player_mark)
 
-        active_player_index = (active_player_index + 1) % len(players)
-
-    game_over_print(board, current_player, active_player_index - 1)
+    game_over_print(current_player_index)
 
 
-def init_board():
+def set_initial_board_state():
     """Set board to zero | transposed for easier checking later"""
-    return [
+    global board
+    board = [
         [None, None, None, None, None, None],
         [None, None, None, None, None, None],
         [None, None, None, None, None, None],
@@ -40,16 +40,17 @@ def init_board():
     ]
 
 
-def init_players():
+def set_players():
     """Enter player names and randomly select starting player"""
+    global players
     players = [input("Enter player name: "), input("Enter player name: ")]
     player_1 = random.choice(players)
     player_2 = players[players.index(player_1) - 1]
     print(f"{player_1} goes 1st!")
-    return [player_1, player_2]
+    players = [player_1, player_2]
 
 
-def check_for_winner(board, active_player_index):
+def check_for_winner(active_player_index):
     """Check after any round if there is a winner"""
     # check for winner by columns (because it's transposed)
     if check_winning_states(board, active_player_index):
@@ -72,7 +73,6 @@ def check_for_winner(board, active_player_index):
 
 def check_winning_states(rows_to_be_checked, active_player_index):
     """Helper function for checking if there is a winner"""
-    global marks
     current_player_win_check = [marks[active_player_index]] * 4
 
     for row in rows_to_be_checked:
@@ -82,7 +82,7 @@ def check_winning_states(rows_to_be_checked, active_player_index):
                     return True
 
 
-def is_board_full(board):
+def is_board_full():
     """Check if board is full, used to check if there is a tie"""
     if not any(None in row for row in board):
         return True
@@ -93,7 +93,7 @@ def announce_player(player):
     print(f"{player}, choose a column")
 
 
-def show_board(board):
+def show_board():
     """Draw current state of the board"""
     flipped_board = np.transpose(board)
     for row in flipped_board:
@@ -103,13 +103,13 @@ def show_board(board):
         print()
 
 
-def choose_location(board, mark):
-    """Let current player choose spot in array"""
+def set_drop_location(mark):
+    """Let current player choose drop spot in array"""
     while True:
         try:
             column = int(input(f"Choose spot to drop {mark} (1-7): "))
             if column in range(1, 8):
-                if check_location(board, column - 1, mark):
+                if check_location(column - 1, mark):
                     break
         except ValueError:
             print("Spot must be between an integer between 1 and 7!")
@@ -117,7 +117,7 @@ def choose_location(board, mark):
     print()
 
 
-def check_location(board, column, mark):
+def check_location(column, mark):
     """Helper function for drop location - checks if column is full"""
     while True:
         if None in board[column]:
@@ -130,14 +130,14 @@ def check_location(board, column, mark):
             return False
 
 
-def game_over_print(board, current_player, active_player_index):
+def game_over_print(current_player_index):
     """Print game result along with final board state"""
     print()
-    if not check_for_winner(board, active_player_index):
+    if not check_for_winner(current_player_index):
         print("The game is a tie!")
     else:
-        print(f"Game over! {current_player} won with game state: ")
-    show_board(board)
+        print(f"Game over! {players[current_player_index]} won with game state: ")
+    show_board()
 
 
 if __name__ == '__main__':
