@@ -14,15 +14,13 @@ def main():
     current_player = players[active_player_index]
 
     # loop until there is a winner or the board is full
-    while not check_for_winner(board, active_player_index - 1):
+    while not (check_for_winner(board, active_player_index - 1) or is_board_full(board)):
         current_player = players[active_player_index]
         current_player_mark = marks[active_player_index]
 
         announce_player(current_player)
         show_board(board)
         choose_location(board, current_player_mark)
-        if is_board_full(board):
-            break
 
         active_player_index = (active_player_index + 1) % len(players)
 
@@ -86,8 +84,8 @@ def check_winning_states(rows_to_be_checked, active_player_index):
 
 def is_board_full(board):
     """Check if board is full, used to check if there is a tie"""
-    if any(None in row for row in board):
-        return False
+    if not any(None in row for row in board):
+        return True
 
 
 def announce_player(player):
